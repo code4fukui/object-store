@@ -1,7 +1,7 @@
 import { serveAPI } from "https://js.sabae.cc/wsutil.js";
 import { makeDirectories, readJSON, writeJSON, sanitizeName, checkAccess } from "./fileutil.js";
 
-await makeDirectories(["log", "static", "blacklist", "whitelist"]);
+await makeDirectories(["data", "log", "static", "blacklist", "whitelist"]);
 
 serveAPI("/api/", async (param, req, path, connio) => {
   if (!await checkAccess(connio, path)) {
