@@ -104,6 +104,22 @@ const show = () => {
   const cal = new CalendarView(year, startmonth);
   main.appendChild(cal);
 
+  const putReservation = async (date, body) => {
+    const dd = { date, body };
+    const res = await reserveapi.set(date, dd);
+    //console.log("res", res);
+    if (!res) {
+      alert("予約登録が失敗しました");
+    } else {
+      const d = data.find(d => d.date == date);
+      if (!d) {
+        data.push(dd);
+      } else {
+        d.body = body;
+      }
+      show();
+    }
+  };
   // all day
   for (let d = new Day(thisyear, startmonth, 1); d.year == thisyear; d = d.nextDay()) {
     const day = d.toStringYMD();
@@ -111,15 +127,7 @@ const show = () => {
     div.onclick = async () => {
       const r = prompt("予約名をご記入ください");
       if (r) {
-        const dd = { date: day, body: r };
-        const res = await reserveapi.set(day, dd);
-        console.log("res", res);
-        if (!res) {
-          alert("予約登録が失敗しました");
-        } else {
-          data.push(dd);
-          show();
-        }
+        await putReservation(day, r);
       }
     };
   }
@@ -128,12 +136,13 @@ const show = () => {
   for (const d of data) {
     const dt = new Day(d.date).toStringYMD();
     const div = cal.querySelector(".c" + dt);
-    if (div) {
+    if (div && d.body) {
       div.style.backgroundColor = "#ffaaaa";
-      //div.textContent = "予約あり";
-      //div.setAttribute("title", d.title);
-      div.onclick = () => {
-        alert(JSON.stringify(d, null, 2));
+      div.onclick = async () => {
+        const body2 = prompt("予約状況", d.body);
+        if (d.body != body2) {
+          await putReservation(dt, body2);
+        }
       };
     }
   }
