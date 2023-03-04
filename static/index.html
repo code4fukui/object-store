@@ -140,7 +140,7 @@ const show = () => {
       div.style.backgroundColor = "#ffaaaa";
       div.onclick = async () => {
         const body2 = prompt("予約状況", d.body);
-        if (d.body != body2) {
+        if (body2 !== null && d.body != body2) {
           await putReservation(dt, body2);
         }
       };
