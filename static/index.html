@@ -1,0 +1,145 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>予約カレンダー</title>
+</head><body>
+
+<header>
+<h1>予約カレンダー <select id=selyear></select></h1>
+</header>
+
+<main id=main></main>
+<hr>
+Base app: <a href=https://fukuno.jig.jp/calendar.html>一日一創カレンダー</a><br>
+
+<style>
+body {
+  padding: 0;
+  margin: 0;
+  text-align: center;
+  font-size: 2vw;
+}
+header {
+  padding: 1em 0;
+  background-color: #ddd;
+  font-size: 180%;
+}
+#selyear {
+  font-size: 100%;
+  padding: .2em .5em;
+}
+calendar-view a {
+  text-decoration: none;
+  color: white;
+  -webkit-text-stroke: 2px #000 !important;
+  cursor: pointer;
+  display: block;
+  padding: .3em .1em .5em .1em;
+  x-background-color: red;
+}
+
+calendar-view > div {
+  vertical-align: top;
+}
+@media (min-width: 1100px) {
+  calendar-view > div {
+    display: inline-block;
+    width: 47vw;
+    margin: .5vw;
+  }
+  body {
+    font-size: 1vw;
+  }
+}
+calendar-view .days {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  margin: 0 0 .3em 0;
+}
+calendar-view .month {
+  font-size: 200%;
+  text-align: center;
+}
+calendar-view .days > div {
+  border: 1px solid gray;
+  text-align: center;
+  height: 2em;
+  font-size: 300%;
+  font-weight: bold;
+  color: white;
+  -webkit-text-stroke: 2px #000;
+}
+</style>
+
+<script type="module">
+import { CSV } from "https://js.sabae.cc/CSV.js";
+import { Day } from "https://code4fukui.github.io/day-es/Day.js";
+import { CalendarView } from "https://code4fukui.github.io/calendar-view/calendar-view.js";
+import { ArrayUtil } from "https://js.sabae.cc/ArrayUtil.js";
+import { ObjectStore } from "./ObjectStore.js";
+
+const fn = location.hash.substring(1) || "test";
+
+const reserveapi = new ObjectStore(fn);
+
+const data = Object.values(await reserveapi.get());
+console.log(data);
+
+const thisyear = new Day().year;
+const yearlist = data.map(d => new Day(d.date).year);
+yearlist.push(thisyear);
+const years = ArrayUtil.toUnique(yearlist).sort();
+for (const y of years) {
+  const op = document.createElement("option");
+  op.textContent = y;
+  selyear.appendChild(op);
+}
+selyear.value = thisyear;
+
+const thismonth = new Day().month;
+
+const show = () => {
+  const year = selyear.value;
+  
+  main.innerHTML = "";
+  const startmonth = year == thisyear ? thismonth : 1;
+  const cal = new CalendarView(year, startmonth);
+  main.appendChild(cal);
+
+  // all day
+  for (let d = new Day(thisyear, startmonth, 1); d.year == thisyear; d = d.nextDay()) {
+    const day = d.toStringYMD();
+    const div = cal.querySelector(".c" + day);
+    div.onclick = async () => {
+      const r = prompt("予約名をご記入ください");
+      if (r) {
+        const dd = { date: day, body: r };
+        const res = await reserveapi.set(day, dd);
+        console.log("res", res);
+        if (!res) {
+          alert("予約登録が失敗しました");
+        } else {
+          data.push(dd);
+          show();
+        }
+      }
+    };
+  }
+
+  // reserved
+  for (const d of data) {
+    const dt = new Day(d.date).toStringYMD();
+    const div = cal.querySelector(".c" + dt);
+    if (div) {
+      div.style.backgroundColor = "#ffaaaa";
+      //div.textContent = "予約あり";
+      //div.setAttribute("title", d.title);
+      div.onclick = () => {
+        alert(JSON.stringify(d, null, 2));
+      };
+    }
+  }
+};
+show();
+selyear.onchange = show;
+</script>
+
+</body>
