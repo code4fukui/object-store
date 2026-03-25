@@ -1,29 +1,21 @@
 # object-store
-日本語のREADMEはこちらです: [README.ja.md](README.ja.md)
 
-A simple object store API using Deno.
+A Web/Code project by [Code for FUKUI](https://github.com/code4fukui).
 
-## Features
-- Stores JSON objects in separate files for each "object"
-- Provides a GET and SET API for accessing and modifying the stored objects
-- Includes access logging and rate limiting to protect against abuse
-- Supports blacklisting and whitelisting of clients
+**Live demo**: https://code4fukui.github.io/object-store/
 
-## Requirements
-This project requires [Deno](https://deno.land/) to run.
+## Technology Stack
 
-## Usage
-1. Clone the repository: `git clone https://github.com/code4fukui/object-store.git`
-2. Change to the project directory: `cd object-store`
-3. Start the server: `deno run --allow-net --allow-read --allow-write objectstore.js`
 
-The server will start listening on `http://localhost:8000/api/`.
+## Installation & Setup
 
-## Data / API
-The project uses the local file system to store the JSON objects. The API endpoints are:
+No build step required. Clone the repository and open `index.html` in a browser,
+or visit the live demo at https://code4fukui.github.io/object-store/
 
-- `GET /api/get/{filename}/{objectname}`: Retrieve a stored object by filename and name
-- `POST /api/set/{filename}/{objectname}`: Store a new or update an existing object
+## Contributing
+
+Contributions are welcome. Please open an issue or pull request on GitHub.
 
 ## License
-This project is licensed under the [MIT License](LICENSE).
+
+MIT License. See [LICENSE](./LICENSE) for details.
